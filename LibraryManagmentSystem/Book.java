@@ -1,7 +1,8 @@
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Book {
+public class Book implements NotifySubject {
 
     private String bookId;
     private String title;
@@ -14,6 +15,10 @@ public class Book {
     private List<String> borrowedHistory;
     private List<String> tags;
     private List<String> reviews;
+    private List<NotifyObserver> observers = new ArrayList<>();
+    private List<Users> reservationQueue = new ArrayList<>();
+
+
 
     // ------------------- Constructor for Simple Books -------------------
     public Book(String bookId, String title, String author, String category, String ISBN, String availabilityStatus) {
@@ -45,6 +50,11 @@ public class Book {
         this.reviews = builder.reviews;
     }
 
+    public List<Users> getReservationQueue() {
+      return reservationQueue;
+    }
+
+
     // ------------------- Getters & Setters -------------------
     public String getBookId() { return bookId; }
     public void setBookId(String bookId) { this.bookId = bookId; }
@@ -75,20 +85,42 @@ public class Book {
         return availabilityStatus.equalsIgnoreCase("Available");
     }
 
-    public void borrow(String userId) {
-        if (isAvailable()) {
-            availabilityStatus = "Borrowed";
-            borrowedHistory.add(userId);
-        }
+    public void borrow(String userId, Users user) {
+
+     if (!isAvailable()) {
+        System.out.println("Book is not available.");
+        return;
+     }
+
+     // Remove from queue if present
+     reservationQueue.remove(user);
+     removeObserver(user);
+
+     availabilityStatus = "Borrowed";
+     borrowedHistory.add(userId);
+
+     LocalDate dueDate = LocalDate.now().plusDays(14);
+     notifyObservers("You borrowed '" + title + "'. Due date: " + dueDate);
     }
 
+
     public void returnBook() {
+
+        if (!reservationQueue.isEmpty()) {
+         Users nextUser = reservationQueue.get(0);  // first person in queue
+         notifyObservers("Book '" + title + "' is now available for: " + nextUser.getName());
+        }
+
         availabilityStatus = "Available";
     }
 
-    public void reserve() {
-        availabilityStatus = "Reserved";
-    }
+    public void reserve(Users user) {
+      reservationQueue.add(user);
+      addObserver(user);
+      availabilityStatus = "Reserved";
+
+      notifyObservers("You reserved the book: " + title);
+    }  
 
     // ------------------- Display Book Details -------------------
     public void displayBook() {
@@ -104,6 +136,24 @@ public class Book {
         System.out.println("Borrowed History: " + borrowedHistory);
         System.out.println("----------------------------");
     }
+
+    @Override
+    public void addObserver(NotifyObserver observer) {    
+     observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(NotifyObserver observer) {    
+      observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(String message) {
+        for(NotifyObserver observer : observers) {
+            observer.update(message);
+        }
+    }
+
 
     // ===========================================================
     //                    BUILDER CLASS

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Users {
+public class Users implements NotifyObserver {
 
     private String userId;
     private String name;
@@ -9,6 +9,8 @@ public class Users {
     private String contactNumber;
     private String membershipType; // Student, Faculty, Guest
     private List<Book> borrowedBooks;
+    private List<Notification> notifications = new ArrayList<>();
+
 
     // ------------------- Constructor -------------------
     public Users(String userId, String name, String email, String contactNumber, String membershipType) {
@@ -85,5 +87,26 @@ public class Users {
             }
         }
     }
+
+    @Override
+    public void update(String message) {
+        Notification notification = new Notification(message);
+        notifications.add(notification);
+        System.out.println("New notification for " + name + ": " + message);
+    }
+
+    public void viewNotifications() {
+     System.out.println("\n=== Notifications for " + name + " ===");
+
+     if (notifications.isEmpty()) {
+        System.out.println("No notifications available.");
+        return;
+     }
+
+     for (Notification n : notifications) {
+        System.out.println(n);
+     }
+    }
+
 }
 

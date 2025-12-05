@@ -1,5 +1,6 @@
 public interface NotifyObserver {
     
 
-    public void notifyObserver();
+    void update(String message);
+
 }

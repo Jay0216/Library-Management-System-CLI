@@ -1,6 +1,8 @@
 public interface NotifySubject {
 
 
-    public void update();
+    void addObserver(NotifyObserver observer);
+    void removeObserver(NotifyObserver observer);
+    void notifyObservers(String message);
 
 }
