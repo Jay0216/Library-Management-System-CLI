@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -152,27 +154,84 @@ public class LibraryManagmentSystem {
         //}
         //book.setAvailable(false);
         book.borrow(user.getUserId(), user);
-        System.out.println(user.getName() + " borrowed: " + book.getTitle());
 
 
     }
 
     public void returnBook(Users user, Book book) {
-        //book.setAvailable(true);
-        book.returnBook();
-        System.out.println(user.getName() + " returned: " + book.getTitle());
+
+       LocalDate dueDate = book.getDueDate();  
+       LocalDate today = LocalDate.now();
+
+       long lateDays = 0;
+
+       if (today.isAfter(dueDate)) {
+        lateDays = ChronoUnit.DAYS.between(dueDate, today);
+       }
+
+      // ----------- Strategy Selection (NO FACTORY) ----------
+      FineStrategy strategy;
+
+      switch (user.getMembershipType().toLowerCase()) {
+        case "student":
+            strategy = new StudentStrategy();
+            break;
+        case "faculty":
+            strategy = new FacultyStrategy();
+            break;
+        case "guest":
+            strategy = new GuestStrategy();
+            break;
+        default:
+            System.out.println("Unknown membership type!");
+            return;
+       }
+
+      // ----------- Calculate Fine -----------
+      double fine = strategy.calculateFine(lateDays);
+
+      System.out.println(user.getName() + " returned: " + book.getTitle());
+
+      if (lateDays > 0) {
+        System.out.println("Late by " + lateDays + " days. Fine: LKR " + fine);
+      } else {
+        System.out.println("Returned on time. No fine.");
+      }
+
+      // Update user and book
+      user.returnBook(book);
+      book.returnBook();
     }
 
     
     public void reserveBook(Users user, Book book) {
-     // Reserve the book properly
-     book.reserve(user);  // updates availabilityStatus, adds observer, notifies user
+      // Validation: check if book is borrowed or already reserved
+      if (!book.isAvailable() && book.getReservationQueue().contains(user)) {
+        System.out.println("You have already reserved this book.");
+        return;
+      } 
+      if (!book.isAvailable() && !book.getReservationQueue().contains(user)) {
+        System.out.println("Book is currently borrowed. You can reserve it if it's available later.");
+        // Optional: automatically add to reservation queue
+        // book.reserve(user);
+        // Reservations r = new Reservations(user, book);
+        // reservations.add(r);
+        return;
+      }
 
-     // Add to reservation list
-     Reservations r = new Reservations(user, book);
-     reservations.add(r);
+      if (book.getReservationQueue().contains(user)) {
+        System.out.println("You have already reserved this book.");
+        return;
+      }
 
-     System.out.println("Reservation successful for book: " + book.getTitle());
+      // Reserve the book properly
+      book.reserve(user);  // updates state, adds observer, notifies user
+
+      // Add to reservation list
+      Reservations r = new Reservations(user, book);
+      reservations.add(r);
+
+      System.out.println("Reservation successful for book: " + book.getTitle());
     }
 
     

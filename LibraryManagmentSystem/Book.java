@@ -18,6 +18,8 @@ public class Book implements NotifySubject {
     private List<NotifyObserver> observers = new ArrayList<>();
     private List<Users> reservationQueue = new ArrayList<>();
     private BookState state;
+    private LocalDate dueDate;
+
 
 
 
@@ -89,6 +91,14 @@ public class Book implements NotifySubject {
       state.cancelReservation(this, user);
     }
 
+    public LocalDate getDueDate() {
+      return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+      this.dueDate = dueDate;
+    }
+
     //public String getAvailabilityStatus() { return availabilityStatus; }
     //public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
     public List<String> getBorrowedHistory() { return borrowedHistory; }
@@ -101,30 +111,27 @@ public class Book implements NotifySubject {
     }
 
     public void borrow(String userId, Users user) {
+     if (!isAvailable()) {
+        System.out.println("Book is not available.");
+        return;
+     }
 
-        state.borrow(this, user);
+     // Update state
+     state.borrow(this, user); // just changes state
 
-      if (state instanceof BorrowedState) {
-        borrowedHistory.add(userId);
+     // Update borrowed history
+     borrowedHistory.add(userId);
 
-        LocalDate dueDate = LocalDate.now().plusDays(14);
-        notifyObservers("You borrowed '" + title + "'. Due date: " + dueDate);
-      }
+     // Set due date
+     this.dueDate = LocalDate.now().minusDays(5);
 
-     //if (!isAvailable()) {
-        //System.out.println("Book is not available.");
-        //return;
-     //}
+     // Notify only this borrower
+     user.update("You borrowed '" + title + "'. Due date: " + dueDate);
 
-     // Remove from queue if present
-     //reservationQueue.remove(user);
-     //removeObserver(user);
+     System.out.println(user.getName() + " borrowed: " + title);
 
-     //availabilityStatus = "Borrowed";
-     //borrowedHistory.add(userId);
-
-     //LocalDate dueDate = LocalDate.now().plusDays(14);
-     //notifyObservers("You borrowed '" + title + "'. Due date: " + dueDate);
+     // Remove from reservation queue if present
+     reservationQueue.remove(user);
     }
 
 
@@ -141,13 +148,25 @@ public class Book implements NotifySubject {
     }
 
     public void reserve(Users user) {
-      //reservationQueue.add(user);
-      //addObserver(user);
-      //availabilityStatus = "Reserved";
+       // Prevent duplicate reservations
+       if (reservationQueue.contains(user)) {
+        System.out.println("You have already reserved this book.");
+        return;
+       }
 
-      //notifyObservers("You reserved the book: " + title);
+       // If book is borrowed, add to reservation queue
+       if (!isAvailable()) {
+        reservationQueue.add(user);
+        addObserver(user); // for notifications when book becomes available
+        System.out.println("Book is currently borrowed. You are added to the reservation queue.");
+        return;
+       }
 
+      // Book is available -> change state to Reserved
       state.reserve(this, user);
+      reservationQueue.add(user);
+      addObserver(user);
+      notifyObservers("You reserved the book: " + title);
     }  
 
     // ------------------- Display Book Details -------------------

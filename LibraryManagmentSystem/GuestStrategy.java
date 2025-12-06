@@ -2,8 +2,8 @@ public class GuestStrategy implements FineStrategy {
     
 
     @Override
-    public void payFine(double amount){
-
-        
+    public double calculateFine(long lateDays) {
+        return lateDays * 100.0;
     }
+
 }
