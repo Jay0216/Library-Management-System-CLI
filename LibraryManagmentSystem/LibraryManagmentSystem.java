@@ -146,16 +146,20 @@ public class LibraryManagmentSystem {
 
     // ------------------- USER ACTIONS -------------------
     public void borrowBook(Users user, Book book) {
-        if (!book.isAvailable()) {
-            System.out.println("Book is not available.");
-            return;
-        }
+        //if (!book.isAvailable()) {
+           // System.out.println("Book is not available.");
+           // return;
+        //}
         //book.setAvailable(false);
+        book.borrow(user.getUserId(), user);
         System.out.println(user.getName() + " borrowed: " + book.getTitle());
+
+
     }
 
     public void returnBook(Users user, Book book) {
         //book.setAvailable(true);
+        book.returnBook();
         System.out.println(user.getName() + " returned: " + book.getTitle());
     }
 
@@ -263,7 +267,7 @@ public class LibraryManagmentSystem {
         System.out.println("Author: " + b.getAuthor());
         System.out.println("Category: " + b.getCategory());
         System.out.println("ISBN: " + b.getISBN());
-        System.out.println("Availability: " + b.getAvailabilityStatus());
+        System.out.println("Availability: " + b.getState().getStatusName());
         System.out.println("-----------------------------");
     }
     }
@@ -279,7 +283,7 @@ public class LibraryManagmentSystem {
          System.out.println("User: " + r.getUser().getName() +
                            " | Book: " + r.getBook().getTitle() +
                            " | Reservation Date: " + r.getReservationDate() +
-                           " | Book Status: " + r.getBook().getAvailabilityStatus());
+                           " | Book Status: " + r.getBook().getState().getStatusName());
         }
     }
     private void viewNotifications() {
@@ -321,14 +325,24 @@ public Reservations getReservation(Users user, Book book) {
 
 // Cancel reservation
 public void cancelReservation(Reservations r) {
+    //reservations.remove(r);
+
+    Book book = r.getBook();
+    Users user = r.getUser();
+
+    // Let the book's state handle cancellation
+    book.cancelReservation(user);
+
+    // Remove reservation from system list
     reservations.remove(r);
-    r.getBook().setAvailabilityStatus("Available");
+    //r.getBook().setAvailabilityStatus("Available");
 }
 
 // Add reservation (for undo)
 public void addReservation(Reservations r) {
     reservations.add(r);
-    r.getBook().setAvailabilityStatus("Reserved");
+    r.getBook().reserve(r.getUser());
+    //r.getBook().setAvailabilityStatus("Reserved");
 }
 
 

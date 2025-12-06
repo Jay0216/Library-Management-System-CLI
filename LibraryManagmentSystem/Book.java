@@ -10,13 +10,15 @@ public class Book implements NotifySubject {
     private String category;
     private String ISBN;
     private String edition;
-    private String availabilityStatus; // Available, Borrowed, Reserved
+    //private String availabilityStatus; // Available, Borrowed, Reserved
 
     private List<String> borrowedHistory;
     private List<String> tags;
     private List<String> reviews;
     private List<NotifyObserver> observers = new ArrayList<>();
     private List<Users> reservationQueue = new ArrayList<>();
+    private BookState state;
+
 
 
 
@@ -27,7 +29,8 @@ public class Book implements NotifySubject {
         this.author = author;
         this.category = category;
         this.ISBN = ISBN;
-        this.availabilityStatus = availabilityStatus;
+        //this.availabilityStatus = availabilityStatus;
+        this.state = new AvailableState();
 
         this.borrowedHistory = new ArrayList<>();
         this.tags = new ArrayList<>();
@@ -43,8 +46,9 @@ public class Book implements NotifySubject {
         this.ISBN = builder.ISBN;
         this.edition = builder.edition;
 
-        this.availabilityStatus = "Available";
+        //this.availabilityStatus = "Available";
 
+        this.state = new AvailableState();
         this.borrowedHistory = new ArrayList<>();
         this.tags = builder.tags;
         this.reviews = builder.reviews;
@@ -73,53 +77,77 @@ public class Book implements NotifySubject {
 
     public String getEdition() { return edition; }
 
-    public String getAvailabilityStatus() { return availabilityStatus; }
-    public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
+    public void setState(BookState newState) {
+        this.state = newState;
+    }
 
+    public BookState getState() {
+        return this.state;
+    }
+
+    public void cancelReservation(Users user) {
+      state.cancelReservation(this, user);
+    }
+
+    //public String getAvailabilityStatus() { return availabilityStatus; }
+    //public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
     public List<String> getBorrowedHistory() { return borrowedHistory; }
     public List<String> getTags() { return tags; }
     public List<String> getReviews() { return reviews; }
 
     // ------------------- Availability -------------------
     public boolean isAvailable() {
-        return availabilityStatus.equalsIgnoreCase("Available");
+        return state.getStatusName().equals("Available");
     }
 
     public void borrow(String userId, Users user) {
 
-     if (!isAvailable()) {
-        System.out.println("Book is not available.");
-        return;
-     }
+        state.borrow(this, user);
+
+      if (state instanceof BorrowedState) {
+        borrowedHistory.add(userId);
+
+        LocalDate dueDate = LocalDate.now().plusDays(14);
+        notifyObservers("You borrowed '" + title + "'. Due date: " + dueDate);
+      }
+
+     //if (!isAvailable()) {
+        //System.out.println("Book is not available.");
+        //return;
+     //}
 
      // Remove from queue if present
-     reservationQueue.remove(user);
-     removeObserver(user);
+     //reservationQueue.remove(user);
+     //removeObserver(user);
 
-     availabilityStatus = "Borrowed";
-     borrowedHistory.add(userId);
+     //availabilityStatus = "Borrowed";
+     //borrowedHistory.add(userId);
 
-     LocalDate dueDate = LocalDate.now().plusDays(14);
-     notifyObservers("You borrowed '" + title + "'. Due date: " + dueDate);
+     //LocalDate dueDate = LocalDate.now().plusDays(14);
+     //notifyObservers("You borrowed '" + title + "'. Due date: " + dueDate);
     }
 
 
     public void returnBook() {
 
-        if (!reservationQueue.isEmpty()) {
-         Users nextUser = reservationQueue.get(0);  // first person in queue
-         notifyObservers("Book '" + title + "' is now available for: " + nextUser.getName());
-        }
+        //if (!reservationQueue.isEmpty()) {
+         //Users nextUser = reservationQueue.get(0);  // first person in queue
+         //notifyObservers("Book '" + title + "' is now available for: " + nextUser.getName());
+        //}
 
-        availabilityStatus = "Available";
+        state.returnBook(this);
+
+        //availabilityStatus = "Available";
     }
 
     public void reserve(Users user) {
-      reservationQueue.add(user);
-      addObserver(user);
-      availabilityStatus = "Reserved";
+      //reservationQueue.add(user);
+      //addObserver(user);
+      //availabilityStatus = "Reserved";
 
-      notifyObservers("You reserved the book: " + title);
+      //notifyObservers("You reserved the book: " + title);
+
+      state.reserve(this, user);
     }  
 
     // ------------------- Display Book Details -------------------
@@ -130,7 +158,7 @@ public class Book implements NotifySubject {
         System.out.println("Category: " + category);
         System.out.println("ISBN: " + ISBN);
         System.out.println("Edition: " + edition);
-        System.out.println("Status: " + availabilityStatus);
+        System.out.println("Status: " + state.getStatusName());
         System.out.println("Tags: " + tags);
         System.out.println("Reviews: " + reviews);
         System.out.println("Borrowed History: " + borrowedHistory);
@@ -174,6 +202,8 @@ public class Book implements NotifySubject {
             this.bookId = bookId;
             this.title = title;
             this.author = author;
+
+            
         }
 
         public BookBuilder category(String category) {
