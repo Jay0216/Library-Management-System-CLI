@@ -19,6 +19,7 @@ public class Book implements NotifySubject {
     private List<Users> reservationQueue = new ArrayList<>();
     private BookState state;
     private LocalDate dueDate;
+    private Users currentBorrower;
 
 
 
@@ -99,6 +100,14 @@ public class Book implements NotifySubject {
       this.dueDate = dueDate;
     }
 
+    public Users getCurrentBorrower() {
+      return currentBorrower;
+    }
+
+    public void setCurrentBorrower(Users user) {
+      this.currentBorrower = user;
+    }
+
     //public String getAvailabilityStatus() { return availabilityStatus; }
     //public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
     public List<String> getBorrowedHistory() { return borrowedHistory; }
@@ -123,7 +132,14 @@ public class Book implements NotifySubject {
      borrowedHistory.add(userId);
 
      // Set due date
-     this.dueDate = LocalDate.now().minusDays(5);
+     this.dueDate = LocalDate.now().plusDays(14);
+     
+
+     // NEW — track borrower
+     this.currentBorrower = user;
+
+     // NEW — track user stats
+     user.borrowBook(this);
 
      // Notify only this borrower
      user.update("You borrowed '" + title + "'. Due date: " + dueDate);
@@ -143,6 +159,14 @@ public class Book implements NotifySubject {
         //}
 
         state.returnBook(this);
+
+        // NEW — clear borrower
+        if (currentBorrower != null) {
+         currentBorrower.returnBook(this);
+        }
+
+        this.currentBorrower = null;
+        this.dueDate = null;
 
         //availabilityStatus = "Available";
     }

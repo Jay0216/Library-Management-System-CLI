@@ -10,6 +10,7 @@ public class Users implements NotifyObserver {
     private String membershipType; // Student, Faculty, Guest
     private List<Book> borrowedBooks;
     private List<Notification> notifications = new ArrayList<>();
+    private int borrowCount = 0;
 
 
     // ------------------- Constructor -------------------
@@ -70,12 +71,20 @@ public class Users implements NotifyObserver {
     // ------------------- Borrow & Return Books -------------------
     public void borrowBook(Book book) {
         borrowedBooks.add(book);
+        incrementBorrowCount(); 
     }
 
     public void returnBook(Book book) {
         borrowedBooks.remove(book);
     }
 
+    public int getBorrowCount() {
+      return borrowCount;
+    }
+
+    public void incrementBorrowCount() {
+      borrowCount++;
+    }
     // ------------------- Display Borrowed Books -------------------
     public void displayBorrowedBooks() {
         System.out.println("Borrowed books by " + name + ":");

@@ -191,5 +191,60 @@ public class Librarian {
         System.out.println("Complex Book added successfully!");
 
     }
+
+    public void addDecoratedBook() {
+      System.out.println("=== Add Book with Features ===");
+
+      System.out.print("Enter Book ID: ");
+      String id = scanner.nextLine();
+
+      System.out.print("Enter Title: ");
+      String title = scanner.nextLine();
+
+      System.out.print("Enter Author: ");
+      String author = scanner.nextLine();
+
+      Book book = new Book(id, title, author, "", "", "Available");
+
+      System.out.print("Add features? (1=Featured, 2=Recommended, 3=Special Edition, 0=No): ");
+      String choice = scanner.nextLine();
+
+      switch (choice) {
+          case "1":
+              book = new FeaturedBook(book);
+              break;
+          case "2":
+              book = new RecommendedBook(book);
+              break;
+          case "3":
+              book = new SpecialEditionBook(book);
+              break;
+          default:
+              break;
+      }
+
+     books.add(book);
+     System.out.println("Decorated book added successfully!");
+    }
+
+    public void viewGeneratedReports(List<Reports> reports) {
+      System.out.println("\n=== All Generated Reports ===");
+
+      if (reports.isEmpty()) {
+        System.out.println("No reports generated yet.");
+        return;
+      }
+
+      int index = 1;
+      for (Reports r : reports) {
+        System.out.println("\nReport #" + index++);
+        r.generate();   // Polymorphic call
+        System.out.println("-------------------------------");
+      }
+    }
+
 }
+
+
+
 

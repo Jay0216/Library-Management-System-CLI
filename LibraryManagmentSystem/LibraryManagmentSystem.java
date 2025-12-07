@@ -61,6 +61,7 @@ public class LibraryManagmentSystem {
             System.out.println("5. Reserve Book");
             System.out.println("6. View Reservations");
             System.out.println("7. View Notifications");
+            System.out.println("8. Generate Reports"); 
             System.out.println("0. Back");
 
             System.out.print("Choose: ");
@@ -75,6 +76,7 @@ public class LibraryManagmentSystem {
                 case 5 -> reserveBookMenu();
                 case 6 -> viewReservations();
                 case 7 -> viewNotifications();
+                case 8 -> generateReportMenu();
                 case 0 -> System.out.println("Back...");
                 default -> System.out.println("Invalid option.");
             }
@@ -102,8 +104,10 @@ public class LibraryManagmentSystem {
             System.out.println("\n=== Librarian Mode ===");
             System.out.println("1. Add Book");
             System.out.println("2. Add Complex Books (with Metadata)");
-            System.out.println("3. Update Book");
-            System.out.println("4. Remove Book");
+            System.out.println("3. Add Book with Specific Features");
+            System.out.println("4. Update Book");
+            System.out.println("5. Remove Book");
+            System.out.println("6. View Generated Reports");
             System.out.println("0. Back");
 
             System.out.print("Enter choice: ");
@@ -113,8 +117,10 @@ public class LibraryManagmentSystem {
             switch (choice) {
                 case 1 -> librarian.addBook();
                 case 2 -> librarian.addComplexBooks();
-                case 3 -> librarian.updateBook();
-                case 4 -> librarian.removeBook();
+                case 3 -> librarian.addDecoratedBook(); 
+                case 4 -> librarian.updateBook();
+                case 5 -> librarian.removeBook();
+                case 6 -> librarian.viewGeneratedReports(reports);
                 case 0 -> System.out.println("Back...");
                 default -> System.out.println("Invalid option.");
             }
@@ -357,6 +363,28 @@ public class LibraryManagmentSystem {
         }
 
         user.viewNotifications();
+    }
+
+    private void generateReportMenu() {
+
+      System.out.println("\n=== Generate Report ===");
+      System.out.println("1. Most Borrowed Books");
+      System.out.println("2. Active Borrowers");
+      System.out.println("3. Overdue Books");
+      System.out.print("Enter report type: ");
+
+      int type = scanner.nextInt();
+      scanner.nextLine();
+
+      // Reports use books AND users
+      List<Book> books = librarian.getBooks();
+
+      Reports report = new Reports(type, books, users);
+
+      report.generate();     // Print immediately
+      reports.add(report);   // Save for librarian view later
+
+      System.out.println("Report generated and saved.");
     }
 
 
