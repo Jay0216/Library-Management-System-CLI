@@ -3,7 +3,7 @@ public class AvailableState implements BookState {
     @Override
     public void borrow(Book book, Users user) {
         book.setState(new BorrowedState());
-        book.getBorrowedHistory().add(user.getUserId());
+        //book.getBorrowedHistory().add(user.getUserId());
         book.notifyObservers("Book borrowed: " + book.getTitle());
     }
 
@@ -14,10 +14,13 @@ public class AvailableState implements BookState {
 
     @Override
     public void reserve(Book book, Users user) {
+      if (!book.getReservationQueue().contains(user)) {
         book.getReservationQueue().add(user);
-        book.addObserver(user);
-        book.setState(new ReservedState());
-        book.notifyObservers("You reserved: " + book.getTitle());
+        System.out.println(user.getName() + " added to reservation queue for: " + book.getTitle());
+      } else {
+        System.out.println(user.getName() + " has already reserved this book.");
+      }
+      book.setState(new ReservedState());
     }
 
     @Override

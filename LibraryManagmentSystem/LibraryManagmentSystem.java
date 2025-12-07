@@ -211,29 +211,16 @@ public class LibraryManagmentSystem {
 
     
     public void reserveBook(Users user, Book book) {
-      // Validation: check if book is borrowed or already reserved
-      if (!book.isAvailable() && book.getReservationQueue().contains(user)) {
-        System.out.println("You have already reserved this book.");
-        return;
-      } 
-      if (!book.isAvailable() && !book.getReservationQueue().contains(user)) {
-        System.out.println("Book is currently borrowed. You can reserve it if it's available later.");
-        // Optional: automatically add to reservation queue
-        // book.reserve(user);
-        // Reservations r = new Reservations(user, book);
-        // reservations.add(r);
-        return;
-      }
-
+      // Check if user already reserved
       if (book.getReservationQueue().contains(user)) {
         System.out.println("You have already reserved this book.");
         return;
       }
 
-      // Reserve the book properly
-      book.reserve(user);  // updates state, adds observer, notifies user
+      // Call the book's reserve logic
+      book.reserve(user);
 
-      // Add to reservation list
+      // Create a Reservation record (System composition)
       Reservations r = new Reservations(user, book);
       reservations.add(r);
 

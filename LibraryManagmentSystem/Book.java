@@ -132,7 +132,7 @@ public class Book implements NotifySubject {
      borrowedHistory.add(userId);
 
      // Set due date
-     this.dueDate = LocalDate.now().plusDays(14);
+     this.dueDate = LocalDate.now().minusDays(5);
      
 
      // NEW — track borrower
@@ -172,25 +172,20 @@ public class Book implements NotifySubject {
     }
 
     public void reserve(Users user) {
-       // Prevent duplicate reservations
        if (reservationQueue.contains(user)) {
         System.out.println("You have already reserved this book.");
         return;
        }
 
-       // If book is borrowed, add to reservation queue
-       if (!isAvailable()) {
-        reservationQueue.add(user);
-        addObserver(user); // for notifications when book becomes available
-        System.out.println("Book is currently borrowed. You are added to the reservation queue.");
-        return;
+       reservationQueue.add(user);    // Add to reservation queue
+       addObserver(user);            // Add as observer for notifications
+
+       // If the book was available, now set it as Reserved
+       if (isAvailable()) {
+         setState(new ReservedState());
        }
 
-      // Book is available -> change state to Reserved
-      state.reserve(this, user);
-      reservationQueue.add(user);
-      addObserver(user);
-      notifyObservers("You reserved the book: " + title);
+       System.out.println(user.getName() + " reserved: " + getTitle());
     }  
 
     // ------------------- Display Book Details -------------------

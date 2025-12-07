@@ -9,8 +9,9 @@ public class ReservedState implements BookState {
     public void returnBook(Book book) {
         if (!book.getReservationQueue().isEmpty()) {
             Users next = book.getReservationQueue().remove(0);
-            book.notifyObservers("Reserved book ready for: " + next.getName());
-            book.setState(new AvailableState());
+            next.update("Book '" + book.getTitle() + "' is now available for you to borrow.");
+            System.out.println("Notification sent to " + next.getName());
+            book.setState(new ReservedState());
         } else {
             book.setState(new AvailableState());
         }
@@ -18,9 +19,12 @@ public class ReservedState implements BookState {
 
     @Override
     public void reserve(Book book, Users user) {
-        book.getReservationQueue().add(user);
-        book.addObserver(user);
-        book.notifyObservers("Added to reservation queue: " + book.getTitle());
+        if (!book.getReservationQueue().contains(user)) {
+            book.getReservationQueue().add(user);
+            System.out.println(user.getName() + " added to reservation queue for: " + book.getTitle());
+        } else {
+            System.out.println(user.getName() + " has already reserved this book.");
+        }
     }
 
     @Override

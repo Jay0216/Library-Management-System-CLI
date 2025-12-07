@@ -9,20 +9,24 @@ public class BorrowedState implements BookState {
     public void returnBook(Book book) {
 
         if (!book.getReservationQueue().isEmpty()) {
-            Users next = book.getReservationQueue().get(0);
-            book.notifyObservers("Book returned and available for: " + next.getName());
-            book.setState(new ReservedState());
+         Users next = book.getReservationQueue().get(0); // peek first user
+         next.update("Book returned and ready for you to borrow: " + book.getTitle());
+         System.out.println("Notification sent to " + next.getName());
+         book.setState(new ReservedState()); // Book now reserved for first user
         } else {
-            book.setState(new AvailableState());
+         book.setState(new AvailableState());
         }
     }
 
     @Override
     public void reserve(Book book, Users user) {
-        book.getReservationQueue().add(user);
-        book.addObserver(user);
+        if (!book.getReservationQueue().contains(user)) {
+            book.getReservationQueue().add(user);
+            System.out.println(user.getName() + " reserved: " + book.getTitle());
+        } else {
+            System.out.println(user.getName() + " has already reserved this book.");
+        }
         book.setState(new ReservedState());
-        book.notifyObservers("You reserved: " + book.getTitle());
     }
 
     @Override

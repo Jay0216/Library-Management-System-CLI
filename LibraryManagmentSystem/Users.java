@@ -71,7 +71,6 @@ public class Users implements NotifyObserver {
     // ------------------- Borrow & Return Books -------------------
     public void borrowBook(Book book) {
         borrowedBooks.add(book);
-        incrementBorrowCount(); 
     }
 
     public void returnBook(Book book) {
