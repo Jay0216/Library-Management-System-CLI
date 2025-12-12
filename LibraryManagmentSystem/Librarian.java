@@ -39,7 +39,7 @@ public class Librarian {
         System.out.print("Enter ISBN: ");
         String isbn = scanner.nextLine();
 
-        Book book = new Book(id, title, author, category, isbn, "Available");
+        Book book = new Book(id, title, author, category, isbn);
         books.add(book);
 
         System.out.println("Book added successfully!");
@@ -204,7 +204,7 @@ public class Librarian {
       System.out.print("Enter Author: ");
       String author = scanner.nextLine();
 
-      Book book = new Book(id, title, author, "", "", "Available");
+      Book book = new Book(id, title, author, "", "");
 
       System.out.print("Add features? (1=Featured, 2=Recommended, 3=Special Edition, 0=No): ");
       String choice = scanner.nextLine();

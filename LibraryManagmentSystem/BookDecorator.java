@@ -3,7 +3,7 @@ public abstract class BookDecorator extends Book {
     protected Book decoratedBook;
 
     public BookDecorator(Book book) {
-        super(book.getBookId(), book.getTitle(), book.getAuthor(), book.getCategory(), book.getISBN(), "Available");
+        super(book.getBookId(), book.getTitle(), book.getAuthor(), book.getCategory(), book.getISBN());
         this.decoratedBook = book;
     }
 
@@ -12,5 +12,5 @@ public abstract class BookDecorator extends Book {
         decoratedBook.displayBook();
     }
 
-    // You can override other methods if needed
+    
 }

@@ -26,7 +26,7 @@ public class Book implements NotifySubject {
 
 
     // ------------------- Constructor for Simple Books -------------------
-    public Book(String bookId, String title, String author, String category, String ISBN, String availabilityStatus) {
+    public Book(String bookId, String title, String author, String category, String ISBN) {
         this.bookId = bookId;
         this.title = title;
         this.author = author;
