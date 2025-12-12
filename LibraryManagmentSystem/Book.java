@@ -132,7 +132,7 @@ public class Book implements NotifySubject {
      borrowedHistory.add(userId);
 
      // Set due date
-     this.dueDate = LocalDate.now().minusDays(5);
+     this.dueDate = LocalDate.now().plusDays(14);
      
 
      // NEW — track borrower
